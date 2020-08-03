@@ -125,6 +125,25 @@ macro_rules! field_common {
                     tmp
                 });
             }
+
+
+            #[bench]
+            fn [<bench_ $field_ident _pow>](b: &mut ::test::Bencher) {
+                use rand::RngCore;
+
+                const SAMPLES: usize = 1000;
+
+                let mut rng = XorShiftRng::seed_from_u64(1231275789u64);
+
+                let v: Vec<($f_type, [u64; 2])> = (0..SAMPLES).map(|_| ($f::rand(&mut rng), [rng.next_u64(), rng.next_u64()])).collect();
+
+                let mut count = 0;
+                b.iter(|| {
+                    let tmp = v[count].0.pow(v[count].1);
+                    count = (count + 1) % SAMPLES;
+                    tmp
+                });
+            }
         }
     };
 }
